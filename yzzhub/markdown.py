@@ -6,10 +6,16 @@
 - build_subtitle_markdown：字幕页导出内容 = 图片行（可选）+ 信息表格，
   可选字段（匹配资源 / 解压密码）留空时整行省略。
 - build_drama_markdown：短剧页导出内容 = 图片行（可选，自动附加 ?w=560
-  宽度参数）+ 下载链接代码块；链接里本身含 ``` 时自动加长围栏。
+  宽度参数）+ 短剧简介引用行（可选，单行 > 前缀）+ 下载链接代码块；
+  链接里本身含 ``` 时自动加长围栏。
 """
 
+import re
+
 from yzzhub import DRAMA_IMAGE_WIDTH, WP_PREFIX
+
+# 简介强制单行：换行 / 制表符（含 \r\n、\r、\n）折叠为一个空格。
+_FOLD_BREAKS = re.compile(r"[\r\n\t]+")
 
 
 def wp_accelerate(url):
@@ -74,12 +80,27 @@ def build_subtitle_markdown(title, image_url, movie, actors,
     return "\n".join(parts)
 
 
-def build_drama_markdown(title, image_url, download_text):
-    """短剧页内容：图片行（可选，?w=560）+ 下载链接代码块。"""
+def _quote_block(text):
+    """短剧简介（单行）-> markdown 引用行列表；空白时返回空列表。
+
+    输入框已强制单行；这里再把换行 / 制表符折叠为空格（防御程序调用方
+    直接传多行文本），保证导出永远是一行「> …」。
+    """
+    text = _FOLD_BREAKS.sub(" ", text or "").strip()
+    return ["> " + text] if text else []
+
+
+def build_drama_markdown(title, image_url, intro, download_text):
+    """短剧页内容：图片行（可选，?w=560）+ 短剧简介引用行（可选，单行）
+    + 下载链接代码块。
+
+    引用行位于图片下方、下载链接上方；简介留空时整个引用行省略。
+    """
     parts = []
     image = wp_accelerate(image_url)
     if image:
         parts.append("![%s](%s)" % (title, _append_width(image, DRAMA_IMAGE_WIDTH)))
+    parts.extend(_quote_block(intro))
     text = (download_text or "").strip()
     fence = "```"
     while fence in text:

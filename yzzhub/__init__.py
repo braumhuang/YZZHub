@@ -3,7 +3,7 @@
 
 # APP_VERSION 是应用版本的唯一维护入口；构建脚本会同步平台版本元数据。
 APP_NAME = "YZZ Hub"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 
 # 「论坛」按钮用系统默认浏览器打开的站点。
 HOME_URL = "https://bbs.yzz.me"

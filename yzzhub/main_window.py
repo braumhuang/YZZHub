@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
         self._apply_styles()
         self.statusBar().showMessage(
             "就绪：填写表单信息后，点击右下角「生成」生成 markdown；"
-            "「论坛」访问论坛，「设置」维护图床与 API 密钥（默认 freeimage，免注册）。")
+            "「论坛」访问论坛，「设置」维护图床与 API 密钥。")
 
     # ---------------- 样式 ----------------
     def _apply_styles(self):

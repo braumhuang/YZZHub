@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """字幕页：帖子信息表单 + 右下角「清除 / 生成」生成 markdown。
 
-必填字段以红色 * 标识：帖子标题（≥3 字符）、影片名称、出演女优、
+必填字段以红色 * 标识：帖子标题（≥1 字符）、影片名称、出演女优、
 字幕行数、匹配时长；帖子图片 / 匹配资源 / 解压密码留空时导出省略。
 
 页面组装（外观统一由 yzzhub.theme 定义）：
@@ -27,7 +27,7 @@ from yzzhub.image_field import ImageField
 from yzzhub.markdown import build_subtitle_markdown
 from yzzhub.result_dialog import ResultDialog
 
-TITLE_MIN_CHARS = 3   # 帖子标题最少字符数
+TITLE_MIN_CHARS = 1   # 帖子标题最少字符数
 
 
 class SubtitlePage(QWidget):
@@ -41,7 +41,7 @@ class SubtitlePage(QWidget):
 
         # ---------------- 1. 输入控件 ----------------
         self.title_edit = theme.size_input(self._line_edit(
-            "最少 3 个字符"))
+            "最少 1 个字符"))
         self.image_field = ImageField()               # 图片 URL + 上传 + 历史
 
         self.movie_edit = theme.size_input(self._line_edit(
@@ -126,8 +126,7 @@ class SubtitlePage(QWidget):
         """返回首个校验错误信息（None 表示通过）。"""
         title = self.title_edit.text().strip()
         if len(title) < TITLE_MIN_CHARS:
-            return "帖子标题最少 %d 个字符（当前 %d 个）。" % (
-                TITLE_MIN_CHARS, len(title))
+            return "请填写帖子标题（最少 %d 个字符）。" % TITLE_MIN_CHARS
         # 必填逐项检查：空则聚焦该项并返回提示。
         checks = [
             (self.movie_edit, "请填写影片名称。"),
