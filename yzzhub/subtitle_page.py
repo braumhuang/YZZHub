@@ -4,6 +4,11 @@
 必填字段以红色 * 标识：帖子标题（≥1 字符）、影片名称、出演女优、
 字幕行数、匹配时长；帖子图片 / 匹配资源 / 解压密码留空时导出省略。
 
+输入辅助：
+    - 匹配时长输入框里的全角（中文）字符即时转半角（英文）；
+    - 匹配资源粘贴原始 magnet / ed2k 链接，输入框保留原文，生成时
+      才格式化（见 yzzhub.markdown.format_resource_links）。
+
 页面组装（外观统一由 yzzhub.theme 定义）：
     1. 输入控件（统一输入高度）
     2. 表单卡片（build_form：字段名在上、输入框整宽在下）
@@ -13,7 +18,8 @@
 
 交互：
     - 「清除」一键清空本页全部输入；
-    - 「生成」校验必填后弹出 ResultDialog（标题 / 内容两个复制框）；
+    - 「生成」校验必填后弹出 ResultDialog（标题 / 内容两个复制框）
+      ——匹配资源行此时完成 magnet / ed2k 格式化；
     - ImageField 的状态与设置跳转信号转发给 MainWindow。
 """
 
@@ -24,10 +30,35 @@ from PyQt5.QtCore import pyqtSignal
 
 from yzzhub import theme
 from yzzhub.image_field import ImageField
-from yzzhub.markdown import build_subtitle_markdown
+from yzzhub.markdown import build_subtitle_markdown, to_half_width
 from yzzhub.result_dialog import ResultDialog
 
 TITLE_MIN_CHARS = 1   # 帖子标题最少字符数
+
+
+class _HalfWidthEdit(QLineEdit):
+    """匹配时长输入框：全角（中文输入法）字符即时转半角（英文）。
+
+    中文输入法下冒号 / 加号 / 数字易敲成全角（：＋０…），与导出格式
+    00:45:59 + 00:38:33 不符；监听 textChanged 统一转换，覆盖键入、
+    快捷键粘贴、右键菜单粘贴等全部路径。全角 -> 半角严格一一对应，
+    文本长度不变，转换后光标位置保持原位（见 markdown.to_half_width）。
+    """
+
+    def __init__(self, placeholder=""):
+        super().__init__()
+        self.setPlaceholderText(placeholder)
+        self.textChanged.connect(self._to_half_width)
+
+    def _to_half_width(self, text):
+        half = to_half_width(text)
+        if half == text:
+            return
+        self.blockSignals(True)
+        pos = self.cursorPosition()
+        self.setText(half)
+        self.setCursorPosition(pos)
+        self.blockSignals(False)
 
 
 class SubtitlePage(QWidget):
@@ -51,12 +82,19 @@ class SubtitlePage(QWidget):
         self.lines_edit = theme.size_input(self._line_edit(
             "263 + 137"))
         self.lines_edit.setToolTip("多个字幕时形如 263 + 137，直接按导出格式填写")
-        self.duration_edit = theme.size_input(self._line_edit(
+        # 匹配时长：全角（中文）字符即时转半角（英文）。
+        self.duration_edit = theme.size_input(_HalfWidthEdit(
             "00:45:59 + 00:38:33"))
         self.duration_edit.setToolTip(
-            "多条字幕时形如 00:45:59 + 00:38:33，直接按导出格式填写")
+            "多条字幕时形如 00:45:59 + 00:38:33，直接按导出格式填写；"
+            "全角冒号 / 加号 / 数字自动转成半角")
+        # 匹配资源：输入框保留原始链接，生成时才格式化。
         self.resource_edit = theme.size_input(self._line_edit(
             "magnet或ed2k(可选)"))
+        self.resource_edit.setToolTip(
+            "粘贴原始 magnet / ed2k 链接，生成时自动格式化为可复制下载的"
+            "最简形式：magnet:?xt=urn:btih:大写哈希；"
+            "ed2k://|file|文件名|大小|大写哈希|/（整体包上反引号）")
         self.password_edit = theme.size_input(self._line_edit(
             "附件解压密码(可选)"))
 

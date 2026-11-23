@@ -1,10 +1,10 @@
 # UTF-8
 #
-# PyInstaller --version-file：Windows exe 属性页里的版本信息（v1.1.0）
+# PyInstaller --version-file：Windows exe 属性页里的版本信息（v1.2.0）
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 1, 0, 0),
-    prodvers=(1, 1, 0, 0),
+    filevers=(1, 2, 0, 0),
+    prodvers=(1, 2, 0, 0),
     mask=0x3F,
     flags=0x0,
     OS=0x40004,
@@ -19,12 +19,12 @@ VSVersionInfo(
           '080404b0',
           [StringStruct('CompanyName', 'YZZ Hub'),
            StringStruct('FileDescription', 'YZZ Hub - markdown 生成工具'),
-           StringStruct('FileVersion', '1.1.0.0'),
+           StringStruct('FileVersion', '1.2.0.0'),
            StringStruct('InternalName', 'YZZ Hub'),
            StringStruct('LegalCopyright', 'Copyright (C) 2026'),
            StringStruct('OriginalFilename', 'YZZ Hub.exe'),
            StringStruct('ProductName', 'YZZ Hub'),
-           StringStruct('ProductVersion', '1.1.0')]
+           StringStruct('ProductVersion', '1.2.0')]
         )
       ]
     ),
